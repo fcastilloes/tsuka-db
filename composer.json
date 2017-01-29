@@ -1,0 +1,25 @@
+{
+    "name": "tsuka/db",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fernando Castillo",
+            "email": "contact@fcastillo.es"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:kusanagi/katana-sdk-php5.git",
+            "no-api": true
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Tsuka\\DB\\": "src/"}
+    },
+    "require": {
+        "php": "^7.0",
+        "ext-pdo": "*",
+        "kusanagi/katana-sdk-php5": "*@dev"
+    }
+}
