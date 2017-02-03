@@ -2,14 +2,15 @@
 
 namespace Tsuka\DB;
 
-use PDO;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 
 class DBBuilder
 {
     /**
-     * @var PDO
+     * @var Connection
      */
-    private $pdo;
+    private $connection;
 
     /**
      * @var string
@@ -32,11 +33,11 @@ class DBBuilder
     private $entity = [];
 
     /**
-     * @param PDO $pdo
+     * @param array $config
      */
-    public function __construct(PDO $pdo)
+    public function __construct(array $config)
     {
-        $this->pdo = $pdo;
+        $this->connection = DriverManager::getConnection($config);
     }
 
     /**
@@ -89,7 +90,7 @@ class DBBuilder
     public function build()
     {
         $service = new DBService(
-            $this->pdo,
+            $this->connection,
             $this->table,
             $this->entity,
             $this->simpleRelations,

@@ -2,17 +2,18 @@
 
 namespace Tsuka\DB;
 
-use Entity;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Katana\Sdk\Action;
-use PDO;
-use PDOException;
 
 class DBService
 {
     /**
-     * @var PDO
+     * @var Connection
      */
-    private $pdo;
+    private $connection;
 
     /**
      * @var string
@@ -40,20 +41,20 @@ class DBService
     private $multipleRelations = [];
 
     /**
-     * @param PDO $pdo
+     * @param Connection $connection
      * @param string $table
      * @param array $entity
      * @param array $simpleRelations
      * @param array $multipleRelations
      */
     public function __construct(
-        PDO $pdo,
+        Connection $connection,
         $table,
         array $entity = [],
         array $simpleRelations = [],
         array $multipleRelations = []
     ) {
-        $this->pdo = $pdo;
+        $this->connection = $connection;
         $this->table = $table;
         $this->entity = $entity;
         $this->simpleRelations = $simpleRelations;
@@ -61,41 +62,41 @@ class DBService
     }
 
     /**
-     * @param string $field
-     * @return string
-     */
-    private function getPlaceholder($field)
-    {
-        return ":$field";
-    }
-
-    /**
      * @param Action $action
+     * @param array $filters
      * @return bool
      */
-    public function list(Action $action)
+    public function list(Action $action, $filters = [])
     {
-        $result = $this->pdo->query("select * from $this->table");
-        $action->setCollection($result->fetchAll());
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $queryBuilder
+            ->select('*')
+            ->from($this->table);
+
+        foreach ($filters as $field => $value) {
+            $queryBuilder
+                ->andWhere("$field = :$field")
+                ->setParameter(":$field", $value);
+        }
+
+        $stmt = $queryBuilder->execute();
+        $action->setCollection($stmt->fetchAll());
 
         return true;
     }
 
     public function listByIds(Action $action, array $ids)
     {
-        $placeholders = array_map(function ($i) {
-            return ":id$i";
-        }, range(0, count($ids) -1));
+        $queryBuilder = $this->connection->createQueryBuilder();
 
-        $keys = array_map(function ($i) {
-            return "id{$i}";
-        }, range(0, count($ids) -1));
+        $queryBuilder
+            ->select('*')
+            ->from($this->table)
+            ->where('id IN (:ids)')
+            ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
 
-        $queryString = implode(', ', $placeholders);
-        $parameters = array_combine($keys, $ids);
-
-        $stmt = $this->pdo->prepare("select * from $this->table WHERE id IN ($queryString)");
-        $stmt->execute($parameters);
+        $stmt = $queryBuilder->execute();
         $action->setCollection($stmt->fetchAll());
 
         return true;
@@ -108,8 +109,14 @@ class DBService
      */
     public function read(Action $action, $id)
     {
-        $stmt = $this->pdo->prepare("select * from $this->table where id = :id");
-        $stmt->execute(['id' => $id]);
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $queryBuilder
+            ->select('*')
+            ->from($this->table)
+            ->where('id = :id')
+            ->setParameter('id', $id);
+        $stmt = $queryBuilder->execute();
 
         if ($entity = $stmt->fetch()) {
             $row = new DBRow($action, $entity);
@@ -139,63 +146,63 @@ class DBService
      */
     public function create(Action $action, array $data, $setEntity = true)
     {
-        $fields = array_keys($data);
-        $fieldList = implode(', ', $fields);
-        $placeholders = implode(', ', array_map([$this, 'getPlaceholder'], $fields));
+        $queryBuilder = $this->connection->createQueryBuilder();
 
-        $stmt = $this->pdo->prepare("INSERT INTO $this->table ($fieldList) VALUES ($placeholders)");
+        $queryBuilder
+            ->insert($this->table);
+        foreach ($data as $field => $value) {
+            $queryBuilder
+                ->setValue($field, ":$field")
+                ->setParameter($field, $value);
+        }
 
         try {
-            $stmt->execute($data);
+            $queryBuilder->execute();
             if ($setEntity) {
                 $action->setEntity($data);
             }
 
             return true;
 
-        } catch (PDOException $e) {
-            if ($stmt->errorInfo()[1] === 1062) {
-                $action->error("Item already exists in $this->table", 1, '409 Conflict');
-            } elseif ($stmt->errorInfo()[1] === 1452) {
-                $action->error("A relation was not found for $this->table", 1, '400 Bad Request');
-            } else {
-                $action->error('PDO error: ' . $e->getMessage());
-            }
-
-            return false;
+        } catch (UniqueConstraintViolationException $e) {
+            $action->error("Item already exists in $this->table", 1, '409 Conflict');
+        } catch (ForeignKeyConstraintViolationException $e) {
+            $action->error("A relation was not found for $this->table", 1, '400 Bad Request');
+        } catch (DBALException $e) {
+            $action->error('PDO error: ' . $e->getMessage());
         }
-    }
 
-    /**
-     * @param string $field
-     * @return string
-     */
-    private function getEquality($field)
-    {
-        return "$field = :$field";
+        return false;
     }
 
     /**
      * @param Action $action
-     * @param array $data
+     * @param array $filters
      * @return bool
      */
-    public function delete(Action $action, array $data)
+    public function delete(Action $action, array $filters)
     {
-        $equalities = implode(' AND ', array_map([$this, 'getEquality'], array_keys($data)));
+        $queryBuilder = $this->connection->createQueryBuilder();
 
-        $stmt = $this->pdo->prepare("DELETE FROM $this->table WHERE $equalities");
+        $queryBuilder
+            ->delete($this->table);
+
+        foreach ($filters as $field => $value) {
+            $queryBuilder
+                ->andWhere("$field = :$field")
+                ->setParameter(":$field", $value);
+        }
 
         try {
-            $stmt->execute($data);
+            $stmt = $queryBuilder->execute();
 
-            if ($stmt->rowCount() === 0) {
+            if ($stmt === 0) {
                 $action->error("Item not found in $this->table", 1, '404 Not Found');
                 return false;
             } else {
                 return true;
             }
-        } catch (PDOException $e) {
+        } catch (DBALException $e) {
             $action->error('PDO error: ' . $e->getMessage());
             return false;
         }

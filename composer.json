@@ -20,6 +20,7 @@
     "require": {
         "php": "^7.0",
         "ext-pdo": "*",
-        "kusanagi/katana-sdk-php5": "*@dev"
+        "kusanagi/katana-sdk-php5": "*@dev",
+        "doctrine/dbal": "^2.5"
     }
 }
