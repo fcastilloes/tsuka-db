@@ -175,6 +175,45 @@ class DBService
         return false;
     }
 
+    public function createFromView(Action $action, array $data, $view)
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $queryBuilder
+            ->select(array_keys($data))
+            ->from($view);
+
+        foreach ($data as $field => $value) {
+            $queryBuilder
+                ->andWhere("$field = :$field");
+        }
+
+        // dbal does not support select insert
+        $sql = "insert into $this->table {$queryBuilder->getSQL()}";
+        $stmt = $this->connection->prepare($sql);
+
+        try {
+            $stmt->execute($data);
+
+            if ($stmt->rowCount() === 0) {
+                $action->error("Invalid relation", 1, '403 Forbidden');
+                return false;
+            }
+
+            $action->setEntity($data);
+            return true;
+
+        } catch (UniqueConstraintViolationException $e) {
+            $action->error("Item already exists in $this->table", 1, '409 Conflict');
+        } catch (ForeignKeyConstraintViolationException $e) {
+            $action->error("A relation was not found for $this->table", 1, '400 Bad Request');
+        } catch (DBALException $e) {
+            $action->error('PDO error: ' . $e->getMessage());
+        }
+
+        return false;
+    }
+
     /**
      * @param Action $action
      * @param array $filters
