@@ -94,7 +94,7 @@ class DBRow
                 $this->action->getVersion(),
                 'list',
                 [
-                    $this->action->newParam('ids', explode(',', $this->data[$relation])),
+                    $this->action->newParam('ids', $this->data[$relation]),
                 ]
             );
         }

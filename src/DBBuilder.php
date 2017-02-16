@@ -41,6 +41,14 @@ class DBBuilder
     }
 
     /**
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
      * @param string $table
      * @return $this
      */
