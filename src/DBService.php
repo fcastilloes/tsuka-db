@@ -140,6 +140,49 @@ class DBService
 
     /**
      * @param Action $action
+     * @param array $filters
+     * @return bool
+     */
+    public function first(Action $action, $filters = [])
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $queryBuilder
+            ->select('*')
+            ->from($this->table);
+
+        foreach ($filters as $field => $value) {
+            $queryBuilder
+                ->andWhere("$field = :$field")
+                ->setParameter(":$field", $value);
+        }
+
+        $stmt = $queryBuilder->execute();
+
+        if ($entity = $stmt->fetch()) {
+            $row = new DBRow($action, $entity);
+            foreach ($this->simpleRelations as $relation) {
+                $row->relateOne($relation);
+            }
+            foreach ($this->multipleRelations as $relation) {
+                $row->relateMany($relation);
+            }
+            $row->resolveRelations();
+            if ($this->entity) {
+                $action->setEntity($row->getEntity($this->entity));
+            }
+
+            return true;
+
+        } else {
+            $action->error("Entity not found in $this->table", 1, '404 Not Found');
+
+            return false;
+        }
+    }
+
+    /**
+     * @param Action $action
      * @param array $data
      * @param bool $setEntity
      * @return bool
