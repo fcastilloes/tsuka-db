@@ -186,6 +186,33 @@ class DBService
         return $queryBuilder->execute();
     }
 
+	/**
+	 * @param array $data
+	 * @param array $filters
+	 * @return bool
+	 */
+	public function update(array $data, array $filters)
+	{
+		$queryBuilder = $this->connection->createQueryBuilder();
+
+		$queryBuilder
+			->update($this->table);
+
+		foreach ($data as $field => $value) {
+			$queryBuilder
+				->set($field, ":$field")
+				->setParameter($field, $value);
+		}
+
+		foreach ($filters as $field => $value) {
+			$queryBuilder
+				->andWhere("$field = :$field")
+				->setParameter(":$field", $value);
+		}
+
+		return $queryBuilder->execute();
+	}
+
     /**
      * @return bool
      */
