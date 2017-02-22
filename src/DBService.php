@@ -198,7 +198,6 @@ class DBService
 		$queryBuilder
 			->update($this->table);
 
-
 		foreach ($data as $field => $value) {
 			$queryBuilder
 				->set($field, ":$field")
