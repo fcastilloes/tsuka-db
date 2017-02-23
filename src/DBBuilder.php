@@ -3,10 +3,15 @@
 namespace Tsuka\DB;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DriverManager;
 
 class DBBuilder
 {
+    const CONNECTION_OK = 'ok';
+    const CONNECTION_KO = 'ko';
+    const CONNECTION_GONE = 'gone';
+
     /**
      * @var Connection
      */
@@ -46,6 +51,31 @@ class DBBuilder
     public function getConnection()
     {
         return $this->connection;
+    }
+
+    public function testConnection()
+    {
+        try {
+            if ($this->connection->ping()) {
+                return self::CONNECTION_OK;
+            } else {
+                return self::CONNECTION_KO;
+            }
+        }  catch (ConnectionException $e) {
+            return self::CONNECTION_GONE;
+        }
+    }
+
+    public function resetConnection()
+    {
+        try {
+            $this->connection->close();
+            $this->connection->connect();
+        } catch (ConnectionException $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
