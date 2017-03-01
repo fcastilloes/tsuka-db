@@ -127,6 +127,12 @@ class DBBuilder
      */
     public function build()
     {
+        // Reconnect if needed
+        if (!$this->connection->ping()) {
+            $this->connection->close();
+            $this->connection->connect();
+        }
+
         $service = new DBService(
             $this->connection,
             $this->table,
