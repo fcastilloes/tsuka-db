@@ -68,7 +68,7 @@ class DBRow
                 $this->data[$relation]
             );
 
-            $this->action->call(
+            $this->action->deferCall(
                 $relation,
                 $this->action->getVersion(),
                 'read',
@@ -89,7 +89,7 @@ class DBRow
                 explode(',', $this->data[$relation])
             );
 
-            $this->action->call(
+            $this->action->deferCall(
                 $relation,
                 $this->action->getVersion(),
                 'list',
