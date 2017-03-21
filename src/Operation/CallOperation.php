@@ -3,6 +3,7 @@
 namespace Tsuka\DB\Operation;
 
 use Katana\Sdk\Action;
+use Tsuka\DB\Binder\BinderInterface;
 use Tsuka\DB\Binder\IdListBinder;
 use Tsuka\DB\Entity;
 
@@ -36,7 +37,7 @@ class CallOperation
             array_flip($this->relations)
         );
 
-        /** @var IdListBinder $binder */
+        /** @var BinderInterface $binder */
         foreach ($relations as $relation => $binder) {
             $binder->bind($this->action, $entity, $relation);
         }
