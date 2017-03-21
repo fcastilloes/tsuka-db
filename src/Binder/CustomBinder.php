@@ -6,15 +6,14 @@ use Katana\Sdk\Action;
 use Tsuka\DB\Entity;
 
 /**
- * Set a multiple relation of an Entity with a list of ids.
+ * Sets either a multiple or a single relation of an Entity with a custom id field.
  *
  * The Entity must have an id property to set the relationship.
  *
- * The list of ids is looked for in an Entity field with the name of the
- * relation as a comma separated list.
+ * The custom id or ids are looked for in an Entity field with a custom relation name.
  *
- * This Binder relies on a service named as the relation with a "list" action
- * that accepts an "ids" parameter with a comma separated list.
+ * This Binder relies on a service named as the relation with a custom action
+ * that accepts such custom parameter with a comma separated list.
  *
  * @package Tsuka\DB\Binder
  */
