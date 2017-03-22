@@ -47,7 +47,7 @@ class CustomBinder implements BinderInterface
     public function __construct(string $actionName, string $paramName, bool $multiple = false)
     {
         if (!$this->actionName || !$this->paramName) {
-            throw new MalformedBinderException('actionName and paramName MUST NOT be null');
+            throw new MalformedBinderException('actionName and paramName MUST NOT be empty');
         }
         $this->actionName = $actionName;
         $this->paramName = $paramName;
