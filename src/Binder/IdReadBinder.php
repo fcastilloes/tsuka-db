@@ -34,7 +34,7 @@ class IdReadBinder implements BinderInterface
         $action->relateOne(
             $entity->id,
             $relation,
-            explode(',', $entity->$relation)
+            $entity->$relation
         );
 
         $action->deferCall(

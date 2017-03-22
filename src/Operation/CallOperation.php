@@ -4,7 +4,6 @@ namespace Tsuka\DB\Operation;
 
 use Katana\Sdk\Action;
 use Tsuka\DB\Binder\BinderInterface;
-use Tsuka\DB\Binder\IdListBinder;
 use Tsuka\DB\Entity;
 
 class CallOperation

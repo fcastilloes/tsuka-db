@@ -4,6 +4,7 @@ namespace Tsuka\DB\Binder;
 
 use Katana\Sdk\Action;
 use Tsuka\DB\Entity;
+use Tsuka\DB\Exception\MalformedBinderException;
 
 /**
  * Sets either a multiple or a single relation of an Entity with a custom id field.
@@ -20,18 +21,34 @@ use Tsuka\DB\Entity;
 class CustomBinder implements BinderInterface
 {
 
+    /**
+     * @var string
+     */
     public $actionName = '';
+
+    /**
+     * @var string
+     */
     public $paramName = '';
+
+    /**
+     * @var bool
+     */
     public $multiple = false;
 
 
     /**
-     * @param string $actionName
-     * @param string $paramName
-     * @param bool $multiple
+     * @param   string  $actionName     The service action's name to be called
+     * @param   string  $paramName      The param name to be passed to the service action
+     * @param   bool    $multiple       Whether or not to use `relateMany`
+     *
+     * @throws MalformedBinderException
      */
-    public function __construct(string $actionName, string $paramName, bool $multiple)
+    public function __construct(string $actionName, string $paramName, bool $multiple = false)
     {
+        if (!$this->actionName || !$this->paramName) {
+            throw new MalformedBinderException('actionName and paramName MUST NOT be null');
+        }
         $this->actionName = $actionName;
         $this->paramName = $paramName;
         $this->multiple = $multiple;
@@ -44,9 +61,6 @@ class CustomBinder implements BinderInterface
      */
     public function bind(Action $action, Entity $entity, string $relation)
     {
-        if (!$this->actionName || !$this->paramName) {
-            return;
-        }
         if (!$entity->$relation) {
             return;
         }
@@ -61,7 +75,7 @@ class CustomBinder implements BinderInterface
             $action->relateOne(
                 $entity->id,
                 $relation,
-                explode(',', $entity->$relation)
+                $entity->$relation
             );
         }
 
