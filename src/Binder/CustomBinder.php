@@ -61,10 +61,6 @@ class CustomBinder implements BinderInterface
      */
     public function bind(Action $action, Entity $entity, string $relation)
     {
-        if (!$entity->$relation) {
-            return;
-        }
-
         if ($this->multiple) {
             $action->relateMany(
                 $entity->id,
@@ -75,7 +71,7 @@ class CustomBinder implements BinderInterface
             $action->relateOne(
                 $entity->id,
                 $relation,
-                $entity->$relation
+                $entity->id
             );
         }
 
@@ -84,7 +80,7 @@ class CustomBinder implements BinderInterface
             $action->getVersion(),
             $this->actionName,
             [
-                $action->newParam($this->paramName, $entity->$relation),
+                $action->newParam($this->paramName, $entity->id),
             ]
         );
     }
