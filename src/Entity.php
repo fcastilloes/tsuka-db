@@ -13,6 +13,14 @@ abstract class Entity
      */
     abstract public function getFields(): array;
 
+    public static function createFromData(array $data)
+    {
+        $instance = new static();
+        $instance->hydrate($data);
+
+        return $instance;
+    }
+
     /**
      * Return the relations of the entity.
      *
