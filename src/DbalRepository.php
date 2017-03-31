@@ -5,6 +5,7 @@ namespace Tsuka\DB;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Katana\Sdk\Param;
 
 class DbalRepository
 {
@@ -86,5 +87,16 @@ class DbalRepository
                 return ":$key";
             }, array_keys($data))
         );
+    }
+
+    /**
+     * @param Param[] $params
+     * @return array
+     */
+    protected function extractParams(array $params): array
+    {
+        return array_filter(array_map(function (Param $param) {
+            return $param->getValue();
+        }, $params));
     }
 }
