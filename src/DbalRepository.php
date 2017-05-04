@@ -5,6 +5,7 @@ namespace Tsuka\DB;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Katana\Sdk\Api\Param;
 use Katana\Sdk\Param;
 
 class DbalRepository
@@ -98,5 +99,17 @@ class DbalRepository
         return array_filter(array_map(function (Param $param) {
             return $param->getValue();
         }, $params));
+    }
+
+    /**
+     * @param string $name
+     * @param array ...$args
+     * @return \Doctrine\DBAL\Driver\Statement
+     */
+    protected function callProcedure(string $name, ...$args)
+    {
+        $paramHolders = implode(', ', array_fill(0, count($args), '?'));
+        $query = "CALL $name($paramHolders)";
+        return $this->connection->executeQuery($query, $args);
     }
 }
