@@ -5,7 +5,6 @@ namespace Tsuka\DB;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Katana\Sdk\Api\Param;
 use Katana\Sdk\Param;
 
 class DbalRepository
