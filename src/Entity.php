@@ -64,4 +64,16 @@ abstract class Entity
             array_flip($this->getFields())
         );
     }
+
+    /**
+     * Return Entity identifier.
+     *
+     * Override if needed.
+     *
+     * @return mixed
+     */
+    public function getIdentifier()
+    {
+        return $this->id ??  null;
+    }
 }
