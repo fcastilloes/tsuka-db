@@ -39,7 +39,7 @@ class IdListBinder implements BinderInterface
      * @param Entity $entity
      * @param string $relation
      */
-    public function bind(Action $action, Entity $entity, string $relation, string $version)
+    public function bind(Action $action, Entity $entity, string $relation)
     {
         if (!$entity->$relation) {
             return;
