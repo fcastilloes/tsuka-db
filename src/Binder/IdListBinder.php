@@ -20,6 +20,20 @@ use Tsuka\DB\Entity;
  */
 class IdListBinder implements BinderInterface
 {
+     /**
+     * @var string
+     */
+    public $version = '';
+
+
+    /**
+     * @param   string  $version        The version to execute the bind against
+     */
+    public function __construct(string $version)
+    {
+        $this->version = $version;
+    }
+
     /**
      * @param Action $action
      * @param Entity $entity
@@ -39,7 +53,7 @@ class IdListBinder implements BinderInterface
 
         $action->deferCall(
             $relation,
-            $action->getVersion(),
+            $this->version,
             'list',
             [
                 $action->newParam('ids', $entity->$relation),
