@@ -32,25 +32,32 @@ class CustomBinder implements BinderInterface
     public $paramName = '';
 
     /**
+     * @var string
+     */
+    public $version = '';
+
+    /**
      * @var bool
      */
     public $multiple = false;
-
+    
 
     /**
      * @param   string  $actionName     The service action's name to be called
      * @param   string  $paramName      The param name to be passed to the service action
+     * @param   string  $version        The version to execute the bind against
      * @param   bool    $multiple       Whether or not to use `relateMany`
      *
      * @throws MalformedBinderException
      */
-    public function __construct(string $actionName, string $paramName, bool $multiple = false)
+    public function __construct(string $actionName, string $paramName, string $version, bool $multiple = false)
     {
         if (!$actionName || !$paramName) {
             throw new MalformedBinderException('actionName and paramName MUST NOT be empty');
         }
         $this->actionName = $actionName;
         $this->paramName = $paramName;
+        $this->version = $version;
         $this->multiple = $multiple;
     }
 
@@ -77,7 +84,7 @@ class CustomBinder implements BinderInterface
 
         $action->deferCall(
             $relation,
-            $action->getVersion(),
+            $this->version,
             $this->actionName,
             [
                 $action->newParam($this->paramName, $entity->id),
