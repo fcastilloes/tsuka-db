@@ -41,7 +41,7 @@ abstract class Entity
      * @param array $data
      * @return $this
      */
-    public function hydrate(array $data)
+    final public function hydrate(array $data)
     {
         foreach ($data as $key => $value) {
             if (!property_exists($this, $key)) {
@@ -50,6 +50,8 @@ abstract class Entity
 
             $this->$key = $value;
         }
+
+        $this->afterHydrate();
 
         return $this;
     }
@@ -75,5 +77,10 @@ abstract class Entity
     public function getIdentifier()
     {
         return $this->id ??  null;
+    }
+
+    public function afterHydrate()
+    {
+        // Override
     }
 }
