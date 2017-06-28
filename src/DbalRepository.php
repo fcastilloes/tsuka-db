@@ -93,11 +93,14 @@ class DbalRepository
      * @param Param[] $params
      * @return array
      */
-    protected function extractParams(array $params): array
+    protected function extractParams(Param ...$params): array
     {
-        return array_filter(array_map(function (Param $param) {
-            return $param->getValue();
-        }, $params));
+        $return = [];
+        foreach ($params as $param) {
+            $return[$param->getName()] = $param->getValue();
+        }
+
+        return $return;
     }
 
     /**
