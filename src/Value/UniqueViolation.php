@@ -39,7 +39,7 @@ final class UniqueViolation
     {
         $matches = [];
         $match = preg_match(
-            '/constraint "([a-zA-Z0-9_-]+)".*Key \(([a-zA-Z0-9_-]+)\)=\(([a-zA-Z0-9_-]+)\)/ms',
+            '/constraint "([a-zA-Z0-9_-]+)".*Key \((.+?)\)=\((.+?)\)/ms',
             $error,
             $matches
         );
