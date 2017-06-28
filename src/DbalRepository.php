@@ -111,4 +111,15 @@ class DbalRepository
         $query = "CALL $name($paramHolders)";
         return $this->connection->executeQuery($query, $args);
     }
+
+    /**
+     * @param Param[] $params
+     * @return string
+     */
+    protected function extractFunctionArguments(array $params)
+    {
+        return implode(', ', array_map(function (Param $param) {
+            return "p_{$param->getName()} := :{$param->getName()}";
+        }, $params));
+    }
 }
