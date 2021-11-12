@@ -2,7 +2,7 @@
 
 namespace Tsuka\DB;
 
-use Katana\Sdk\Action;
+use Kusanagi\Sdk\Action;
 
 class DBRow
 {

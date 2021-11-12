@@ -2,7 +2,7 @@
 
 namespace Tsuka\DB\Binder;
 
-use Katana\Sdk\Action;
+use Kusanagi\Sdk\Action;
 use Tsuka\DB\Entity;
 
 interface CollectionBinderInterface

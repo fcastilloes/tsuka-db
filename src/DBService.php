@@ -3,10 +3,6 @@
 namespace Tsuka\DB;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Katana\Sdk\Action;
 
 class DBService
 {

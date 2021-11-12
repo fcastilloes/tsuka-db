@@ -2,7 +2,7 @@
 
 namespace Tsuka\DB\Binder;
 
-use Katana\Sdk\Action;
+use Kusanagi\Sdk\Action;
 use Tsuka\DB\Entity;
 use Tsuka\DB\Exception\MalformedBinderException;
 
@@ -40,7 +40,7 @@ class CustomBinder implements BinderInterface
      * @var bool
      */
     public $multiple = false;
-    
+
 
     /**
      * @param   string  $actionName     The service action's name to be called

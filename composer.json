@@ -9,9 +9,9 @@
     ],
     "repositories": [
         {
-            "type": "vcs",
-            "url": "git@github.com:kusanagi/katana-sdk-php7.git",
-            "no-api": true
+            "type": "git",
+            "no-api": true,
+            "url": "git@github.com:kusanagi/kusanagi-sdk-php.git"
         }
     ],
     "autoload": {
@@ -20,7 +20,7 @@
     "require": {
         "php": "^7.1",
         "ext-pdo": "*",
-        "kusanagi/katana-sdk-php7": "^2.0",
+        "kusanagi/kusanagi-sdk-php": "^3.0.0",
         "doctrine/dbal": "^2.5"
     }
 }
